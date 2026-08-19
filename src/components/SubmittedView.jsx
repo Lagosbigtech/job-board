@@ -1,33 +1,34 @@
 import React from "react";
-import { primaryBtn } from "./ui.jsx";
-import { refCode } from "../lib/helpers.js";
+import { primaryBtn, tokens } from "./ui.jsx";
 
 export default function SubmittedView({ job, onBack }) {
   return (
     <div style={{ maxWidth: 480, margin: "80px auto", padding: "0 20px", textAlign: "center" }}>
       <div
         style={{
-          display: "inline-block",
-          border: "2px solid #2F6E68",
-          color: "#2F6E68",
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 12,
-          letterSpacing: "0.12em",
-          padding: "6px 14px",
-          borderRadius: 999,
-          transform: "rotate(-3deg)",
-          marginBottom: 20,
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: tokens.successLight,
+          color: tokens.success,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0 auto 18px",
+          fontSize: 26,
+          fontWeight: 700,
         }}
       >
-        APPLICATION RECEIVED
+        ✓
       </div>
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 26, color: "#1B2430", margin: "0 0 10px" }}>
-        You're in the running for {job.title}
+      <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: 24, color: tokens.ink, margin: "0 0 10px" }}>
+        Application sent
       </h2>
-      <p style={{ fontFamily: "'Work Sans', sans-serif", color: "#7A7259", lineHeight: 1.6 }}>
-        Ref #{refCode(job.id)}. The hiring team will reach out by email if you're shortlisted.
+      <p style={{ fontFamily: "'Inter', sans-serif", color: tokens.muted, lineHeight: 1.6, fontSize: 15 }}>
+        You applied for <strong style={{ color: tokens.ink }}>{job.title}</strong> at {job.company}. The hiring team
+        will reach out by email if you're shortlisted.
       </p>
-      <button onClick={onBack} style={{ ...primaryBtn, marginTop: 24 }}>
+      <button onClick={onBack} style={{ ...primaryBtn, marginTop: 22 }}>
         Browse more listings
       </button>
     </div>
