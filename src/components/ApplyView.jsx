@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Eyebrow, Field, backLinkStyle, inputStyle, primaryBtn } from "./ui.jsx";
-import { refCode } from "../lib/helpers.js";
+import { Badge, Field, backLinkStyle, inputStyle, primaryBtn, tokens } from "./ui.jsx";
 import { supabase, RESUME_BUCKET } from "../lib/supabaseClient.js";
 
 const OK_TYPES = [
@@ -35,6 +34,118 @@ export default function ApplyView({ job, onBack, onSubmitted }) {
   };
 
   const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!name.trim() || !email.trim() || !file) {
+      setError("Name, email, and a CV file are required.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${job.id}/${Date.now()}-${safeName}`;
+
+      const { error: uploadError } = await supabase.storage.from(RESUME_BUCKET).upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (uploadError) throw uploadError;
+
+      const { error: insertError } = await supabase.from("applications").insert({
+        job_id: job.id,
+        job_title: job.title,
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        note: note.trim(),
+        resume_path: path,
+        resume_filename: file.name,
+      });
+      if (insertError) throw insertError;
+
+      onSubmitted();
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong submitting your application. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 560, margin: "0 auto", padding: "32px 20px 90px" }}>
+      <button onClick={onBack} style={backLinkStyle}>
+        ← Back to job details
+      </button>
+
+      <div style={{ marginBottom: 22 }}>
+        <Badge tone="brand">Applying for</Badge>
+        <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: 26, color: tokens.ink, margin: "8px 0 2px" }}>
+          {job.title}
+        </h2>
+        <div style={{ fontFamily: "'Inter', sans-serif", color: tokens.muted, fontSize: 14.5 }}>
+          {job.company} · {job.location}
+        </div>
+      </div>
+
+      <form
+        onSubmit={submit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          background: tokens.card,
+          border: `1px solid ${tokens.border}`,
+          borderRadius: 14,
+          padding: 22,
+        }}
+      >
+        <Field label="Full name *">
+          <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
+        </Field>
+        <Field label="Email *">
+          <input style={inputStyle} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@email.com" />
+        </Field>
+        <Field label="Phone">
+          <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 555-5555" />
+        </Field>
+        <Field label="Note to hiring team">
+          <textarea
+            style={{ ...inputStyle, minHeight: 90, resize: "vertical" }}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Anything you'd like to add (optional)"
+          />
+        </Field>
+        <Field label="CV / résumé * (PDF or Word, under 5MB)">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              border: `1.5px dashed ${tokens.brand}`,
+              borderRadius: 8,
+              padding: "18px 16px",
+              textAlign: "center",
+              cursor: "pointer",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              color: file ? tokens.ink : tokens.muted2,
+              background: tokens.brandLight,
+            }}
+          >
+            {file ? `Selected: ${file.name}` : "Click to choose a file"}
+          </div>
+          <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" onChange={handleFile} style={{ display: "none" }} />
+        </Field>
+
+        {error && <div style={{ color: tokens.error, fontFamily: "'Inter', sans-serif", fontSize: 13.5 }}>{error}</div>}
+
+        <button type="submit" disabled={submitting} style={{ ...primaryBtn, marginTop: 4, opacity: submitting ? 0.6 : 1 }}>
+          {submitting ? "Submitting…" : "Submit application"}
+        </button>
+      </form>
+    </div>
+  );
+}  const submit = async (e) => {
     e.preventDefault();
     setError("");
     if (!name.trim() || !email.trim() || !file) {
