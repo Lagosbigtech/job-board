@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eyebrow, Field, inputStyle, primaryBtn } from "./ui.jsx";
+import { Eyebrow, Field, inputStyle, primaryBtn, selectStyle, tokens } from "./ui.jsx";
 import { JOB_TYPES } from "../lib/helpers.js";
 import { supabase } from "../lib/supabaseClient.js";
 
@@ -33,8 +33,55 @@ export default function PostJobForm({ onPosted }) {
   return (
     <form
       onSubmit={submit}
-      style={{ display: "flex", flexDirection: "column", gap: 14, background: "#FBF8F0", border: "1px solid #D8CDB0", borderRadius: 4, padding: 20 }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+        background: tokens.card,
+        border: `1px solid ${tokens.border}`,
+        borderRadius: 14,
+        padding: 22,
+      }}
     >
+      <Eyebrow>Post a new listing</Eyebrow>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <Field label="Job title *">
+          <input style={inputStyle} value={form.title} onChange={set("title")} placeholder="Warehouse Associate" />
+        </Field>
+        <Field label="Company *">
+          <input style={inputStyle} value={form.company} onChange={set("company")} placeholder="Rotime Media Hub" />
+        </Field>
+        <Field label="Location *">
+          <input style={inputStyle} value={form.location} onChange={set("location")} placeholder="Atlanta, GA / Remote" />
+        </Field>
+        <Field label="Type">
+          <select style={selectStyle} value={form.type} onChange={set("type")}>
+            {JOB_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Salary (optional)">
+          <input style={inputStyle} value={form.salary} onChange={set("salary")} placeholder="$18–22/hr" />
+        </Field>
+      </div>
+      <Field label="Description *">
+        <textarea
+          style={{ ...inputStyle, minHeight: 100, resize: "vertical" }}
+          value={form.description}
+          onChange={set("description")}
+          placeholder="What the role involves, requirements, schedule…"
+        />
+      </Field>
+      {err && <div style={{ color: tokens.error, fontSize: 13.5, fontFamily: "'Inter', sans-serif" }}>{err}</div>}
+      <button type="submit" disabled={saving} style={{ ...primaryBtn, alignSelf: "flex-start", opacity: saving ? 0.6 : 1 }}>
+        {saving ? "Posting…" : "Post listing"}
+      </button>
+    </form>
+  );
+}    >
       <Eyebrow>Post a new listing</Eyebrow>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Field label="Job title *">
