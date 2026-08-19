@@ -79,21 +79,4 @@ export default function AdminLogin({ onExit }) {
       </div>
     </div>
   );
-}          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {err && <div style={{ color: "#A33C2E", fontSize: 13, fontFamily: "'Work Sans', sans-serif" }}>{err}</div>}
-        <button type="submit" disabled={loading} style={{ ...primaryBtn, opacity: loading ? 0.6 : 1 }}>
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
-      <div>
-        <button onClick={onExit} style={{ ...backLinkStyle, marginTop: 18 }}>
-          ← Back to listings
-        </button>
-      </div>
-    </div>
-  );
 }
